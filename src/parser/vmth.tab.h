@@ -39,6 +39,13 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+
+
+	#include "scanner.h"
+
+
+
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -46,34 +53,35 @@ extern int yydebug;
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     ARGUMENT = 258,
-     LOCAL = 259,
-     STATIC = 260,
-     CONSTANT = 261,
-     THIS = 262,
-     THAT = 263,
-     POINTER = 264,
-     TEMP = 265,
-     ADD = 266,
-     SUB = 267,
-     NEG = 268,
-     EQ = 269,
-     GT = 270,
-     LT = 271,
-     AND = 272,
-     OR = 273,
-     NOT = 274,
-     PUSH = 275,
-     POP = 276,
-     LABEL = 277,
-     GOTO = 278,
-     IF_GOTO = 279,
-     FUNCTION = 280,
-     CALL = 281,
-     RETURN = 282,
-     COMMA = 283,
-     ID = 284,
-     NUM = 285
+     TK_EOF = 0,
+     TK_PUSH = 258,
+     TK_POP = 259,
+     TK_ARG = 260,
+     TK_LCL = 261,
+     TK_STC = 262,
+     TK_CST = 263,
+     TK_THS = 264,
+     TK_THT = 265,
+     TK_PTR = 266,
+     TK_TMP = 267,
+     TK_ADD = 268,
+     TK_SUB = 269,
+     TK_NEG = 270,
+     TK_EQ = 271,
+     TK_GT = 272,
+     TK_LT = 273,
+     TK_AND = 274,
+     TK_OR = 275,
+     TK_NOT = 276,
+     TK_LABEL = 277,
+     TK_GOTO = 278,
+     TK_IFGOTO = 279,
+     TK_FUNCTION = 280,
+     TK_CALL = 281,
+     TK_RETURN = 282,
+     TK_COMMA = 283,
+     TK_ID = 284,
+     TK_NUM = 285
    };
 #endif
 
@@ -81,15 +89,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 2058 of yacc.c  */
-#line 5 "vmth.y"
+
 
 	char* sval;
 	int   ival;
 
 
-/* Line 2058 of yacc.c  */
-#line 93 "vmth.tab.h"
+
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
