@@ -93,7 +93,7 @@ extern "C" int yylex() {
 				}
 				std::string lex = get_lex();
 
-				std::cout << (char)34 << lex << (char)34 << std::endl;
+				//std::cout << (char)34 << lex << (char)34 << std::endl;
 
 				if (is_num(lex)){
 					yylval.ival = std::atoi(lex.c_str());

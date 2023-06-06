@@ -37,514 +37,331 @@ static void fw(const char* fmt, ...) {
 }
 
 extern "C" void fw_init() {
-	fw("@256");
-	fw("D=A");
-	fw("@SP");
-	fw("M=D");
-	fw("@ARG");
-	fw("M=D");
-	fw("@LCL");
-	fw("M=D");
+	fw("sp = 0");
+	fw("lcl = 1");
+	fw("arg = 2");
+	fw("this = 3");
+	fw("that = 4");
+	fw("temp = 5");
+	fw("static = 16");
+
+	fw("mov sp, 256");
+	fw("mov lcl, 256");
+	fw("mov arg, 256");
 }
 
 extern "C" void fw_push(int seg, int index) {
 	switch (seg) {
 		case TK_ARG:
-			fw("// PUSH ARGUMENT %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@ARG");
-			fw("A=M+D");
-			fw("D=M");
+			fw("; PUSH ARGUMENT %d", index);
+			fw("add r14, arg, %d", index);
+			fw("mov [sp], [r14]");
+			fw("add sp, sp, 1");
 			break;
 		case TK_LCL:
-			fw("// PUSH LOCAL %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@LCL");
-			fw("A=M+D");
-			fw("D=M");
+			fw("; PUSH LOCAL %d", index);
+			fw("add r14, lcl, %d", index);
+			fw("mov [sp], [r14]");
+			fw("add sp, sp, 1");
 			break;
 		case TK_STC:
-			fw("// PUSH STATIC %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@16");
-			fw("A=A+D");
-			fw("D=M");
+			fw("; PUSH STATIC %d", index);
+			fw("add, r14, &static, %d", index);
+			fw("mov [sp], [r14]");
+			fw("add sp, sp, 1");
 			break;
 		case TK_CST:
-			fw("// PUSH CONSTANT %d", index);
-			fw("@%d", index);
-			fw("D=A");
+			fw("; PUSH CONSTANT %d", index);
+			fw("mov [sp], %d", index);
+			fw("add sp, sp, 1");
 			break;
 		case TK_THS:
-			fw("// PUSH THIS %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@THIS");
-			fw("A=D+M");
-			fw("D=M");
+			fw("; PUSH THIS %d", index);
+			fw("add r14, this, %d", index);
+			fw("mov [sp], [r14]");
+			fw("add sp, sp, 1");
 			break;
 		case TK_THT:
-			fw("// PUSH THAT %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@THAT");
-			fw("A=D+M");
-			fw("D=M");
+			fw("; PUSH THAT %d", index);
+			fw("add r14, that, %d", index);
+			fw("mov [sp], [r14]");
+			fw("add sp, sp, 1");
 			break;
 		case TK_PTR:
-			fw("// PUSH POINTER %d", index);
+			fw("; PUSH POINTER %d", index);
 			switch (index) {
 				case 0:
-					fw("@THIS");
-					fw("D=M");
+					fw("mov [sp], this");
+					fw("add sp, sp, 1");
 					break;
 				case 1:
-					fw("@THAT");
-					fw("D=M");
+					fw("mov [sp], that");
+					fw("add sp, sp, 1");
 					break;
 			}
 			break;
 		case TK_TMP:
-			fw("// PUSH TEMP %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@5");
-			fw("A=D+A");
-			fw("D=M");
+			fw("; PUSH TEMP %d", index);
+			fw("add r14, &temp, %d", index);
+			fw("mov [sp], [r14]");
+			fw("add sp, sp, 1");
 			break;
 	}
-
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
 }
 
 extern "C" void fw_pop(int seg, int index) {
-	fw("// Get value from stack and dec stack ptr.");
-	fw("@SP");
-	fw("M=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-
 	switch(seg){
 		case TK_ARG:
-			fw("// POP ARGUMENT %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@ARG");
-			fw("D=M+D");
-			fw("@R14");
-			fw("M=D");
+			fw("; POP ARGUMENT %d", index);
+			fw("sub sp, sp, 1");
+			fw("add r14, arg, %d", index);
+			fw("mov [r14], [sp]");
 			break;
 		case TK_LCL:
-			fw("// POP LOCAL %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@LCL");
-			fw("D=M+D");
-			fw("@R14");
-			fw("M=D");
+			fw("; POP LOCAL %d", index);
+			fw("sub sp, sp, 1");
+			fw("add r14, lcl, %d", index);
+			fw("mov [r14], [sp]");
 			break;
 		case TK_STC:
-			fw("// POP STATIC %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@16");
-			fw("D=A+D");
-			fw("@R14");
-			fw("M=D");
+			fw("; POP STATIC %d", index);
+			fw("sub sp, sp, 1");
+			fw("add r14, &static, %d", index);
+			fw("mov [r14], [sp]");
 			break;
 		case TK_THS:
-			fw("// POP THIS %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@THIS");
-			fw("D=D+M");
-			fw("@R14");
-			fw("M=D");
+			fw("; POP THIS %d", index);
+			fw("sub sp, sp, 1");
+			fw("add r14, this, %d", index);
+			fw("mov [r14], [sp]");
 			break;
 		case TK_THT:
 			fw("// POP THAT %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@THAT");
-			fw("D=D+M");
-			fw("@R14");
-			fw("M=D");
+			fw("sub sp, sp, 1");
+			fw("add r14, that, %d", index);
+			fw("mov [r14], [sp]");
 			break;
 		case TK_PTR:
-			fw("// POP POINTER %d", index);
+			fw("; POP POINTER %d", index);
 			switch (index) {
 				case 0:
-					fw("@THIS");
-					fw("D=M");
-					fw("@R14");
-					fw("M=D");
+					fw("sub sp, sp, 1");
+					fw("mov this, [sp]");
 					break;
 				case 1:
-					fw("@THAT");
-					fw("D=M");
-					fw("R14");
-					fw("M=D");
+					fw("sub sp, sp, 1");
+					fw("mov that, [sp]");
 					break;
 			}
 			break;
 		case TK_TMP:
-			fw("// POP TEMP %d", index);
-			fw("@%d", index);
-			fw("D=A");
-			fw("@5");
-			fw("D=D+A");
-			fw("@R14");
-			fw("M=D");
+			fw("; POP TEMP %d", index);
+			fw("sub sp, sp, 1");
+			fw("add r14, &temp, %d", index);
+			fw("mov [r14], [sp]");
 			break;
 	}
-
-	fw("@R13");
-	fw("D=M");
-	fw("@R14");
-	fw("A=M");
-	fw("M=D");
 }
 
 extern "C" void fw_call(const char* name, int args) {
-	fw("// Get offset for ARG");
-	fw("@%d", args);
-	fw("D=A");
-	fw("@SP");
-	fw("D=M-D");
-	fw("@R13");
-	fw("M=D");
+	fw("; Get offset for ARG");
+	fw("sub r13, sp, %d", args);
 
-	fw("// Save Return Address");
-	fw("@ret_%s_%d_%d", name, args, ret_count);
-	fw("D=A");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("D=A+1");
-	fw("@SP");
-	fw("M=D");
+	fw("; Save Return Address");
+	fw("mov [sp], &ret_%s_%d_%d", name, args, ret_count);
+	fw("add sp, sp, 1");
 
-	fw("// Save LCL");
-	fw("@LCL");
-	fw("D=M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("D=A+1");
-	fw("@SP");
-	fw("M=D");
+	fw("; Save LCL");
+	fw("mov [sp], lcl");
+	fw("add sp, sp, 1");
 
-	fw("// Save ARG");
-	fw("@ARG");
-	fw("D=M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("D=A+1");
-	fw("@SP");
-	fw("M=D");
+	fw("; Save ARG");
+	fw("mov [sp], arg");
+	fw("add sp, sp, 1");
 
-	fw("// Save THIS");
-	fw("@THIS");
-	fw("D=M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("D=A+1");
-	fw("@SP");
-	fw("M=D");
+	fw("; Save THIS");
+	fw("mov [sp], this");
+	fw("add sp, sp, 1");
 
-	fw("// Save THAT");
-	fw("@THAT");
-	fw("D=M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("D=A+1");
-	fw("@SP");
-	fw("M=D");
+	fw("; Save THAT");
+	fw("mov [sp], that");
+	fw("add sp, sp, 1");
 
-	fw("// Set LCL");
-	fw("@LCL");
-	fw("M=D");
+	fw("; Set LCL");
+	fw("mov lcl, sp");
 
-	fw("// Set ARG");
-	fw("@R13");
-	fw("D=M");
-	fw("@ARG");
-	fw("M=D");
+	fw("; Set ARG");
+	fw("mov arg, r13");
 
-	fw("// Call function and set up return label");
-	fw("@%s_%d", name, args);
-	fw("0;JMP");
-	fw("(ret_%s_%d_%d)", name, args, ret_count++);
+	fw("; Call function and set up return label");
+	fw("jmp %s_%d", name, args);
+	fw("ret_%s_%d_%d", name, args, ret_count++);
 }
 
 extern "C" void fw_return() {
-	fw("// Set up stack ptr for popping stack frame");
-	fw("@LCL");
-	fw("D=M");
-	fw("@SP");
-	fw("M=D");
+	fw("; Set up stack ptr for popping stack frame");
+	fw("mov sp, lcl");
 
-	fw("// Restore THAT");
-	fw("@SP");
-	fw("M=M-1");
-	fw("A=M");
-	fw("D=M");
-	fw("@THAT");
-	fw("M=D");
+	fw("; Restore THAT");
+	fw("sub sp, sp, 1");
+	fw("mov that, [sp]");
 
-	fw("// Restore THIS");
-	fw("@SP");
-	fw("M=M-1");
-	fw("A=M");
-	fw("D=M");
-	fw("@THIS");
-	fw("M=D");
+	fw("; Restore THIS");
+	fw("sub sp, sp, 1");
+	fw("mov this, [sp]");
 
-	fw("// Restore ARG");
-	fw("@SP");
-	fw("M=M-1");
-	fw("A=M");
-	fw("D=M");
-	fw("@ARG");
-	fw("M=D");
+	fw("; Restore ARG");
+	fw("sub sp, sp, 1");
+	fw("mov arg, [sp]");
 
-	fw("// Restore LCL");
-	fw("@SP");
-	fw("M=M-1");
-	fw("A=M");
-	fw("D=M");
-	fw("@LCL");
-	fw("M=D");
+	fw("; Restore LCL");
+	fw("sub sp, sp, 1");
+	fw("mov lcl, [sp]");
 
-	fw("// Get return address and jump");
-	fw("@SP");
-	fw("M=M-1");
-	fw("A=M");
-	fw("A=M");
-	fw("0;JMP");
+	fw("; Get return address and jump");
+	fw("sub sp, sp, 1");
+	fw("jmp [sp]");
 }
 
 extern "C" void fw_fndef(const char* name, int args) {
-	fw("(%s_%d)", name, args);
+	fw("%s_%d", name, args);
 }
 
 extern "C" void fw_goto(const char* name) {
-	fw("// GOTO %s", name);
-	fw("@%s", name);
-	fw("0;JMP");
+	fw("; GOTO %s", name);
+	fw("jmp %s", name);
 }
 
 extern "C" void fw_ifgoto(const char* name) {
-	fw("// IF-GOTO %s", name);
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@%s", name);
-	fw("D;JNE");
+	fw("; IF-GOTO %s", name);
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("jne %s", name);
 }
 
 extern "C" void fw_label(const char* name) {
-	fw("(%s)", name);
+	fw("%s", name);
 }
 
 extern "C" void fw_add() {
-	fw("// ADD");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("D=D+M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; ADD");
+	fw("sub sp, sp, 1");
+	fw("mov r14, [sp]");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("add r13, r13, r14");
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_sub() {
-	fw("// SUB");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("D=D-M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; SUB");
+	fw("sub sp, sp, 1");
+	fw("mov r14, [sp]");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("sub r13, r13, r14");
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_neg() {
-	fw("// NEG");
-	fw("D=0");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=D-M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; NEG");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("not r13, r13");
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_lt() {
-	fw("// LT");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("D=D-M");
-	fw("@cmp_true_%d", cmp_count);
-	fw("D;JLT");
-	fw("D=0");
-	fw("@cmp_false_%d", cmp_count);
-	fw("0;JMP");
-	fw("(cmp_true_%d)", cmp_count);
-	fw("D=1");
-	fw("(cmp_false_%d)", cmp_count++);
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; LT");
+	fw("sub sp, sp, 1");
+	fw("mov r14, [sp]");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("sub r13, r13, r14");
 
+	fw("jlt cmp_true_%d", cmp_count);
+	fw("mov r13, 0");
+	fw("jmp cmp_false_%d", cmp_count);
+	fw("cmp_true_%d", cmp_count);
+	fw("mov r13, 1");
+	fw("cmp_false_%d", cmp_count++);
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_gt() {
-	fw("// GT");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("D=D-M");
-	fw("@cmp_true_%d", cmp_count);
-	fw("D;JGT");
-	fw("D=0");
-	fw("@cmp_false_%d", cmp_count);
-	fw("0;JMP");
-	fw("(cmp_true_%d)", cmp_count);
-	fw("D=1");
-	fw("(cmp_false_%d)", cmp_count++);
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; GT");
+	fw("sub sp, sp, 1");
+	fw("mov r14, [sp]");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("sub r13, r13, r14");
+
+	fw("jgt cmp_true_%d", cmp_count);
+	fw("mov r13, 0");
+	fw("jmp cmp_false_%d", cmp_count);
+	fw("cmp_true_%d", cmp_count);
+	fw("mov r13, 1");
+	fw("cmp_false_%d", cmp_count++);
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 
 }
 
 extern "C" void fw_eq() {
-	fw("// EQ");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("D=D-M");
-	fw("@cmp_true_%d", cmp_count);
-	fw("D;JEQ");
-	fw("D=0");
-	fw("@cmp_false_%d", cmp_count);
-	fw("0;JMP");
-	fw("(cmp_true_%d)", cmp_count);
-	fw("D=1");
-	fw("(cmp_false_%d)", cmp_count++);
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; EQ");
+	fw("sub sp, sp, 1");
+	fw("mov r14, [sp]");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("sub r13, r13, r14");
 
+	fw("jeq cmp_true_%d", cmp_count);
+	fw("mov r13, 0");
+	fw("jmp cmp_false_%d", cmp_count);
+	fw("cmp_true_%d", cmp_count);
+	fw("mov r13, 1");
+	fw("cmp_false_%d", cmp_count++);
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_and() {
-	fw("// AND");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("D=D&M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; AND");
+	fw("sub sp, sp, 1");
+	fw("mov r14, [sp]");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("and r13, r13, r14");
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_or() {
-	fw("// OR");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("M=D");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=M");
-	fw("@R13");
-	fw("D=D|M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; OR");
+	fw("sub sp, sp, 1");
+	fw("mov r14, [sp]");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("or r13, r13, r14");
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_not() {
-	fw("// NOT");
-	fw("@SP");
-	fw("AM=M-1");
-	fw("D=!M");
-	fw("@SP");
-	fw("A=M");
-	fw("M=D");
-	fw("@SP");
-	fw("M=M+1");
+	fw("; NOT");
+	fw("sub sp, sp, 1");
+	fw("mov r13, [sp]");
+	fw("not r13, r13");
+	fw("mov [sp], r13");
+	fw("add sp, sp, 1");
 }
 
 extern "C" void fw_dump() {
-	if (fopen_s(&fp, "test.asm", "wb") != 0) {
+	if (fopen_s(&fp, "out.casm", "wb") != 0) {
 		std::cout << "Unable to create file...\n";
 		return;
 	}
