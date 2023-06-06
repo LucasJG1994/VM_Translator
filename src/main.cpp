@@ -9,9 +9,9 @@ extern "C" {
 }
 
 int main(int argc, char** argv) {
-	if(argc == 2){
+	//if(argc == 2){
 		FILE* fp;
-		if (fopen_s(&fp, argv[1], "rb") != 0) {
+		if (fopen_s(&fp, "test/Sys.vm", "rb") != 0) {
 			std::cout << "Failed to read file...\n";
 			return EXIT_FAILURE;
 		}
@@ -41,11 +41,11 @@ int main(int argc, char** argv) {
 		fw_dump();
 
 		delete[] buffer;
-	}
-	else {
-		std::cout << "Expected a single .VM file...\n";
-		std::cout << "Usage:\n";
-		std::cout << "vmth <file_name>.vm\n";
-	}
+	//}
+	//else {
+	//	std::cout << "Expected a single .VM file...\n";
+	//	std::cout << "Usage:\n";
+	//	std::cout << "vmth <file_name>.vm\n";
+	//}
 	return 0;
 }

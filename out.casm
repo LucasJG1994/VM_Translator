@@ -1,0 +1,195 @@
+sp = 0
+lcl = 1
+arg = 2
+this = 3
+that = 4
+temp = 5
+static = 16
+mov sp, 256
+mov lcl, 256
+mov arg, 256
+Sys.init_0
+; PUSH CONSTANT 4
+mov [sp], 4
+add sp, sp, 1
+; Get offset for ARG
+sub r13, sp, 1
+; Save Return Address
+mov [sp], &ret_Sys.fibonacci_1_0
+add sp, sp, 1
+; Save LCL
+mov [sp], lcl
+add sp, sp, 1
+; Save ARG
+mov [sp], arg
+add sp, sp, 1
+; Save THIS
+mov [sp], this
+add sp, sp, 1
+; Save THAT
+mov [sp], that
+add sp, sp, 1
+; Set LCL
+mov lcl, sp
+; Set ARG
+mov arg, r13
+; Call function and set up return label
+jmp Sys.fibonacci_1
+ret_Sys.fibonacci_1_0
+WHILE
+; GOTO WHILE
+jmp WHILE
+Sys.fibonacci_1
+; PUSH ARGUMENT 0
+add r14, arg, 0
+mov [sp], [r14]
+add sp, sp, 1
+; PUSH CONSTANT 2
+mov [sp], 2
+add sp, sp, 1
+; LT
+sub sp, sp, 1
+mov r14, [sp]
+sub sp, sp, 1
+mov r13, [sp]
+sub r13, r13, r14
+jlt cmp_true_0
+mov r13, 0
+jmp cmp_false_0
+cmp_true_0
+mov r13, 1
+cmp_false_0
+mov [sp], r13
+add sp, sp, 1
+; IF-GOTO IF_TRUE
+sub sp, sp, 1
+mov r13, [sp]
+jne IF_TRUE
+; GOTO IF_FALSE
+jmp IF_FALSE
+IF_TRUE
+; PUSH ARGUMENT 0
+add r14, arg, 0
+mov [sp], [r14]
+add sp, sp, 1
+; Set up stack ptr for popping stack frame
+mov sp, lcl
+; Restore THAT
+sub sp, sp, 1
+mov that, [sp]
+; Restore THIS
+sub sp, sp, 1
+mov this, [sp]
+; Restore ARG
+sub sp, sp, 1
+mov arg, [sp]
+; Restore LCL
+sub sp, sp, 1
+mov lcl, [sp]
+; Get return address and jump
+sub sp, sp, 1
+jmp [sp]
+IF_FALSE
+; PUSH ARGUMENT 0
+add r14, arg, 0
+mov [sp], [r14]
+add sp, sp, 1
+; PUSH CONSTANT 2
+mov [sp], 2
+add sp, sp, 1
+; SUB
+sub sp, sp, 1
+mov r14, [sp]
+sub sp, sp, 1
+mov r13, [sp]
+sub r13, r13, r14
+mov [sp], r13
+add sp, sp, 1
+; Get offset for ARG
+sub r13, sp, 1
+; Save Return Address
+mov [sp], &ret_Sys.fibonacci_1_1
+add sp, sp, 1
+; Save LCL
+mov [sp], lcl
+add sp, sp, 1
+; Save ARG
+mov [sp], arg
+add sp, sp, 1
+; Save THIS
+mov [sp], this
+add sp, sp, 1
+; Save THAT
+mov [sp], that
+add sp, sp, 1
+; Set LCL
+mov lcl, sp
+; Set ARG
+mov arg, r13
+; Call function and set up return label
+jmp Sys.fibonacci_1
+ret_Sys.fibonacci_1_1
+; PUSH ARGUMENT 0
+add r14, arg, 0
+mov [sp], [r14]
+add sp, sp, 1
+; PUSH CONSTANT 1
+mov [sp], 1
+add sp, sp, 1
+; SUB
+sub sp, sp, 1
+mov r14, [sp]
+sub sp, sp, 1
+mov r13, [sp]
+sub r13, r13, r14
+mov [sp], r13
+add sp, sp, 1
+; Get offset for ARG
+sub r13, sp, 1
+; Save Return Address
+mov [sp], &ret_Sys.fibonacci_1_2
+add sp, sp, 1
+; Save LCL
+mov [sp], lcl
+add sp, sp, 1
+; Save ARG
+mov [sp], arg
+add sp, sp, 1
+; Save THIS
+mov [sp], this
+add sp, sp, 1
+; Save THAT
+mov [sp], that
+add sp, sp, 1
+; Set LCL
+mov lcl, sp
+; Set ARG
+mov arg, r13
+; Call function and set up return label
+jmp Sys.fibonacci_1
+ret_Sys.fibonacci_1_2
+; ADD
+sub sp, sp, 1
+mov r14, [sp]
+sub sp, sp, 1
+mov r13, [sp]
+add r13, r13, r14
+mov [sp], r13
+add sp, sp, 1
+; Set up stack ptr for popping stack frame
+mov sp, lcl
+; Restore THAT
+sub sp, sp, 1
+mov that, [sp]
+; Restore THIS
+sub sp, sp, 1
+mov this, [sp]
+; Restore ARG
+sub sp, sp, 1
+mov arg, [sp]
+; Restore LCL
+sub sp, sp, 1
+mov lcl, [sp]
+; Get return address and jump
+sub sp, sp, 1
+jmp [sp]

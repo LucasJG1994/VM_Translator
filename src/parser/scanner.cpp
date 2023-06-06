@@ -52,6 +52,7 @@ static std::string get_lex() {
 }
 
 static bool is_num(std::string s) {
+	if(s.length() == 0) return false;
 	for (char c : s) {
 		if((c >= '0' && c <= '9') == 0) return false;
 	}
@@ -60,6 +61,7 @@ static bool is_num(std::string s) {
 }
 
 static bool is_id(std::string s) {
+	if(s.length() == 0) return false;
 	return (s[0] >= 'a' && s[0] <= 'z') || (s[0] >= 'A' && s[0] <= 'Z') || s[0] == '_';
 }
 

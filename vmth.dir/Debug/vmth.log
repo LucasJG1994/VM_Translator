@@ -1,5 +1,2 @@
-﻿  file_writer.cpp
-C:\hack_workspace\VM_Translator\src\parser\file_writer.cpp(30,2): warning C4996: 'vsprintf': This function or variable may be unsafe. Consider using vsprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  scanner.cpp
-  Generating Code...
+﻿  scanner.cpp
   vmth.vcxproj -> C:\hack_workspace\VM_Translator\Debug\vmth.exe
