@@ -23,7 +23,7 @@ void fw_lt();
 void fw_and();
 void fw_or();
 void fw_not();
-void fw_dump();
+void fw_dump(const char* path);
 
 #if __cplusplus
 }

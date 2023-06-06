@@ -48,6 +48,8 @@ extern "C" void fw_init() {
 	fw("mov sp, 256");
 	fw("mov lcl, 256");
 	fw("mov arg, 256");
+
+	fw_call("Sys.init", 0);
 }
 
 extern "C" void fw_push(int seg, int index) {
@@ -360,8 +362,10 @@ extern "C" void fw_not() {
 	fw("add sp, sp, 1");
 }
 
-extern "C" void fw_dump() {
-	if (fopen_s(&fp, "out.casm", "wb") != 0) {
+extern "C" void fw_dump(const char* path) {
+	std::string tmp = std::string(path);
+	tmp += "/out.casm";
+	if (fopen_s(&fp, tmp.c_str(), "wb") != 0) {
 		std::cout << "Unable to create file...\n";
 		return;
 	}

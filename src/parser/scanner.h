@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void yy_init(const char* source);
+void yy_init(const char* path);
 int  yylex();
 
 #if __cplusplus

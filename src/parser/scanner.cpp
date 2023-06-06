@@ -1,4 +1,5 @@
 #include "scanner.h"
+#include "file_writer.h"
 
 #include <iostream>
 #include <map>
@@ -6,6 +7,7 @@
 
 extern "C" {
 #include "vmth.tab.h"
+#include "dir.h"
 extern int line;
 }
 
@@ -65,11 +67,70 @@ static bool is_id(std::string s) {
 	return (s[0] >= 'a' && s[0] <= 'z') || (s[0] >= 'A' && s[0] <= 'Z') || s[0] == '_';
 }
 
-extern "C" void yy_init(const char* source) {
-	src = source;
-	cur = source;
-	begin = source;
-	line = 1;
+extern "C" void yy_init(const char* path) {
+	DIR_HANDLE d = DIR_OPEN(path);
+	const char** files = DIR_GET_FILE_LIST(d);
+	DIR_CLOSE(d);
+
+	if (files == NULL) return;
+
+	for (int i = 0; i < 0xFF; i++) {
+		if (files[i] == NULL) continue;
+		std::cout << files[i] << std::endl;
+
+		std::string full_path = std::string(path);
+		std::string file = std::string(files[i]);
+		std::string ext = ".vm";
+
+		full_path += "/";
+		full_path += std::string(files[i]);
+
+		if (ext != file.substr(file.length() - ext.length(), ext.length())) {
+			std::cout << "File must be of type .vm...\n";
+			continue;
+		}
+
+		fw_init();
+
+		FILE* fp = fopen(full_path.c_str(), "rb");
+
+		if (fp == NULL) {
+			std::cout << "Failed to open file " << std::string(files[i]) << std::endl;
+			continue;
+		}
+
+		fseek(fp, 0L, SEEK_END);
+		long len = ftell(fp);
+		fseek(fp, 0L, SEEK_SET);
+
+		char* buffer = new char[len + 1];
+		if (buffer == nullptr) {
+			fclose(fp);
+			continue;
+		}
+
+		fread(buffer, sizeof(char), len, fp);
+		fclose(fp);
+
+		buffer[len] = 0;
+
+		src = buffer;
+		cur = buffer;
+		begin = buffer;
+		line = 1;
+
+		yyparse();
+
+		delete[] buffer;
+	}
+
+	for (int i = 0; i < 0xFF; i++) {
+		if (files[i] == NULL) continue;
+		free((void*)files[i]);
+	}
+
+	free(files);
+	fw_dump(path);
 }
 
 extern "C" int yylex() {
