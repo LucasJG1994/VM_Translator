@@ -76,7 +76,6 @@ extern "C" void yy_init(const char* path) {
 
 	for (int i = 0; i < 0xFF; i++) {
 		if (files[i] == NULL) continue;
-		std::cout << files[i] << std::endl;
 
 		std::string full_path = std::string(path);
 		std::string file = std::string(files[i]);
@@ -86,9 +85,10 @@ extern "C" void yy_init(const char* path) {
 		full_path += std::string(files[i]);
 
 		if (ext != file.substr(file.length() - ext.length(), ext.length())) {
-			std::cout << "File must be of type .vm...\n";
 			continue;
 		}
+
+		std::cout << files[i] << std::endl;
 
 		fw_init();
 

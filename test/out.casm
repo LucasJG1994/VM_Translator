@@ -32,7 +32,9 @@ mov arg, r13
 ; Call function and set up return label
 jmp Sys.init_0
 ret_Sys.init_0_0
-Main.fibonacci_0
+stop
+jmp stop
+Main.fibonacci_1
 ; PUSH ARGUMENT 0
 add r14, arg, 0
 mov [sp], [r14]
@@ -220,6 +222,8 @@ mov arg, r13
 ; Call function and set up return label
 jmp Sys.init_0
 ret_Sys.init_0_3
+stop
+jmp stop
 Sys.init_0
 ; PUSH CONSTANT 4
 mov [sp], 4

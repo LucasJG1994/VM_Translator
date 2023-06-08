@@ -50,6 +50,8 @@ extern "C" void fw_init() {
 	fw("mov arg, 256");
 
 	fw_call("Sys.init", 0);
+	fw("stop");
+	fw("jmp stop");
 }
 
 extern "C" void fw_push(int seg, int index) {

@@ -8,7 +8,7 @@
 // (part of the Sys.vm file), which also pushes the argument[0] 
 // parameter before this code starts running.
 
-function Main.fibonacci 0
+function Main.fibonacci 1
 push argument 0
 push constant 2
 lt                     // checks if n<2
